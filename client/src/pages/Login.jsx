@@ -17,8 +17,8 @@ const Login = () => {
     setError('');
     try {
       const url = mode === 'login'
-        ? 'http://localhost:5000/api/auth/login'
-        : 'http://localhost:5000/api/auth/register';
+        ? '/api/auth/login'
+        : '/api/auth/register';
       const payload = mode === 'login'
         ? { email: form.email, password: form.password }
         : form;

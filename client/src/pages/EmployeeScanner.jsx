@@ -11,7 +11,7 @@ const EmployeeScanner = () => {
 
   const handleCheckIn = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/api/attendance/checkin', { userId });
+      const res = await axios.post('/api/attendance/checkin', { userId });
 
       setStatus('success');
       setMessage(res.data.message);

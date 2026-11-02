@@ -9,7 +9,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     // Fetch today's attendance (assuming API is running)
-    axios.get('http://localhost:5000/api/attendance/today')
+    axios.get('/api/attendance/today')
       .then(res => setAttendance(res.data))
       .catch(err => console.error(err));
   }, []);
