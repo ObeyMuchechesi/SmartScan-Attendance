@@ -12,7 +12,6 @@ function App() {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        // Decode JWT payload without a library — atob the base64 middle segment
         const payload = JSON.parse(atob(token.split('.')[1]));
         setUserRole(payload.role);
       } catch {}
@@ -30,7 +29,10 @@ function App() {
   return (
     <Router>
       <nav className="bg-white shadow-md p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-brandBlue">Smarter Check-Ins</h1>
+        <div className="flex items-center space-x-2">
+          <span className="text-2x text-brandBlue">📱</span>
+          <h1 className="text-xl font-bold text-brandBlue">SmartScan Attendance</h1>
+        </div>
         <div className="space-x-4">
           {userRole === 'admin' && (
             <Link to="/" className="text-gray-600 hover:text-brandBlue">Admin View</Link>
@@ -42,12 +44,7 @@ function App() {
         <Route path="/" element={<AdminDashboard />} />
         <Route path="/scan" element={<EmployeeScanner />} />
         <Route path="/login" element={<Login />} />
-        <Route
-          path="*"
-          element={
-            <Navigate to="/" replace />
-          }
-        />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );

@@ -4,11 +4,9 @@ import axios from 'axios';
 
 const AdminDashboard = () => {
   const [attendance, setAttendance] = useState([]);
-  // The QR code directs employees to the check-in page
   const checkInUrl = `${window.location.origin}/scan`;
 
   useEffect(() => {
-    // Fetch today's attendance (assuming API is running)
     axios.get('/api/attendance/today')
       .then(res => setAttendance(res.data))
       .catch(err => console.error(err));
@@ -17,7 +15,9 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-brandBlue mb-8">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-brandBlue mb-8">
+          SmartScan Admin Dashboard
+        </h1>
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* QR Code Display Card */}
@@ -34,7 +34,9 @@ const AdminDashboard = () => {
 
           {/* Real-time Attendance List */}
           <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h2 className="text-xl font-bold text-brandBlue mb-4">Today's Check-ins</h2>
+            <h2 className="text-xl font-bold text-brandBlue mb-4">
+              SMARTSCAN CHECK-IN
+            </h2>
             <div className="overflow-y-auto max-h-[400px]">
               {attendance.length === 0 ? (
                 <p className="text-gray-500">No check-ins yet today.</p>

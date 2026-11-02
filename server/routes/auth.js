@@ -56,16 +56,17 @@ router.post('/register', async (req, res) => {
     const { name, email, password, role, badgeNumber } = req.body;
 
     // If registering with just badgeNumber and name (quick onboard, no email)
-    if (badgeNumber && !email) {
+    if (badgeNumber && name && !email) {
       const existing = await User.findOne({ badgeNumber });
       if (existing) {
         return res.status(400).json({ message: 'Badge number already taken.' });
       }
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = password ? await bcrypt.hash(password, salt) : 'temp';
+      const passwordToHash = password || `temp-${Date.now()}`;
+      const hashedPassword = await bcrypt.hash(passwordToHash, salt);
       const user = await User.create({
-        name,
-        email: email || '',
+        name: name || 'Employee',
+        email: email || `temp-${badgeNumber}@smartscan.local`,
         password: hashedPassword,
         role: role || 'employee',
         badgeNumber,
@@ -97,7 +98,7 @@ router.post('/register', async (req, res) => {
       email,
       password: hashedPassword,
       role,
-      badgeNumber: badgeNumber || undefined, // save if provided
+      badgeNumber: badgeNumber || undefined,
     });
 
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
