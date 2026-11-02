@@ -1,38 +1,33 @@
-// Simple PDF generation for attendance records using jsPDF
-// This runs in the Node.js/server environment
+const { createPdf } = require('jspdf');
 
 function createPDF(dateStr, records) {
-  const { create } = require('jspdf');
-  const doc = create('p', 'mm', 'a4');
+  const doc = createPdf('p', 'mm', 'a4');
   
   // Title
   doc.setFontSize(18);
-  doc.setTextColor(0, 0, 0);
   doc.text('SmartScan Attendance', doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' });
   
-  // Subtitle
+  // Date
   doc.setFontSize(12);
-  doc.text(`Date: ${dateStr}`, doc.internal.pageSize.getWidth() / 2, 30, { align: 'center' });
+  doc.text(`Date: ${dateStr}`, doc.internal.pageSize.getWidth() / 2, 35, { align: 'center' });
   
-  // Headers for table
-  const headers = ['Employee', 'Check-in Time', 'Check-out Time'];
-  const rows = records.map(record => [
-    record.user ? record.user.name : 'Unknown',
-    record.checkInTime ? new Date(record.checkInTime).toLocaleTimeString() : 'N/A',
-    record.checkoutTime ? new Date(record.checkoutTime).toLocaleTimeString() : '—'
-  ]);
+  // Simple list of attendees
+  let y = 50;
+  doc.setFontSize(10);
   
-  // Add table
-  (doc.autoTable as any).setHeading(20);
-  (doc.autoTable as any)({
-    head: [headers],
-    body: rows,
-    startY: 40,
-    theme: 'grid',
-    margin: { left: 10, right: 10 }
-  });
+  if (records.length === 0) {
+    doc.text('No check-in records for this date.', doc.internal.pageSize.getWidth() / 2, y, { align: 'center' });
+  } else {
+    records.forEach((record, i) => {
+      const name = record.user ? record.user.name : 'Unknown';
+      const checkIn = record.checkInTime ? new Date(record.checkInTime).toLocaleTimeString() : 'N/A';
+      const checkOut = record.checkoutTime ? new Date(record.checkoutTime).toLocaleTimeString() : '—';
+      doc.text(`${i + 1}. ${name} — Check-in: ${checkIn} — Check-out: ${checkOut}`, 10, y);
+      y += 10;
+    });
+  }
   
-  // Convert to buffer
+  // Output as Buffer
   const pdfOutput = doc.output('arraybuffer');
   return Buffer.from(pdfOutput);
 }

@@ -27,6 +27,21 @@ const EmployeeScanner = () => {
     }
   };
 
+  const handleCheckOut = async () => {
+    if (!userId) {
+      setMessage('Please log in first.');
+      return;
+    }
+    try {
+      const res = await axios.post('/api/attendance/checkout', { userId });
+      setStatus('check-out-success');
+      setMessage(res.data.message);
+    } catch (error) {
+      setStatus('error');
+      setMessage(error.response?.data?.message || 'Check-out failed.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center">
@@ -37,36 +52,48 @@ const EmployeeScanner = () => {
         {status === 'idle' && (
           <p>Tap the button below to record your attendance for today.</p>
         )}
-        <button
-          onClick={handleCheckIn}
-          className="w-full bg-brandBlue text-white py-3 rounded-lg font-bold text-lg"
-        >
-          CHECK IN NOW
-        </button>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={handleCheckIn}
+            className="w-full bg-brandBlue text-white py-3 rounded-lg font-bold text-lg hover:bg-blue-800 transition"
+            disabled={!userId}
+          >
+            CHECK IN NOW
+          </button>
+        </div>
+
         {status === 'success' && (
           <div>
             <h3>Check-In Successful!</h3>
             <p>{message}</p>
             <CheckCircle size={48} color="white" />
+            {/* Check-out button appears after successful check-in */}
+            <button
+              onClick={handleCheckOut}
+              className="w-full bg-green-500 text-white py-3 rounded-lg font-bold text-lg hover:bg-green-600 transition mt-4"
+              disabled={!userId}
+            >
+              CHECK OUT NOW
+            </button>
           </div>
-        )}
-        {status === 'error' && (
-          <p className="text-red-500">{message}</p>
         )}
 
-        {/* QR Code section - show a download link after check-in */}
-        {status !== 'idle' && (
-          <div className="mt-8">
-            <h4>Download Check-In Record</h4>
-            <p>Your check-in has been recorded. You can print this page or save as PDF.</p>
-            <a
-              href="/api/attendance/today"
-              download="SmartScan-CheckIn-Record.html"
-              className="w-full bg-brandGreen text-white py-3 rounded-lg font-bold text-lg hover:bg-green-600 transition"
+        {status === 'check-out-success' && (
+          <div>
+            <h3>Check-Out Successful!</h3>
+            <p>{message}</p>
+            <CheckCircle size={48} color="white" />
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full bg-gray-500 text-white py-3 rounded-lg font-bold text-lg hover:bg-gray-600 transition mt-4"
             >
-              Download Attendance Record
-            </a>
+              RESET DAY
+            </button>
           </div>
+        )}
+
+        {status === 'error' && (
+          <p className="text-red-500">{message}</p>
         )}
       </div>
     </div>

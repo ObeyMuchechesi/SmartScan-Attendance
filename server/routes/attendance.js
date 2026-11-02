@@ -12,7 +12,6 @@ router.post('/checkin', async (req, res) => {
 
     const today = new Date().toISOString().split('T')[0];
 
-    // Check if already checked in
     const existing = await Attendance.findOne({ user: userId, date: today });
     if (existing) {
       return res.status(400).json({ message: 'You have already checked in today.' });
@@ -62,19 +61,24 @@ router.get('/today', async (req, res) => {
   }
 });
 
-// @route GET /api/attendance/export-pdf
-router.get('/export-pdf', async (req, res) => {
+// @route GET /api/attendance/export-csv
+router.get('/export-csv', async (req, res) => {
   try {
     const today = new Date().toISOString().split('T')[0];
     const records = await Attendance.find({ date: today }).populate('user', 'name email');
 
-    // Simple PDF generation using jsPDF
-    const { createPDF } = require('../utils/pdf-utils');
-    const pdfBuffer = createPDF(today, records);
-    
-    res.set('Content-Type', 'application/pdf');
-    res.set('Content-Disposition', `attachment; filename="SmartScan-Attendance-${today}.pdf"`);
-    res.send(pdfBuffer);
+    // Generate CSV
+    let csv = 'Name,Check-in Time,Check-out Time\n';
+    records.forEach(record => {
+      const name = record.user ? record.user.name : 'Unknown';
+      const checkIn = record.checkInTime ? new Date(record.checkInTime).toLocaleTimeString() : 'N/A';
+      const checkOut = record.checkoutTime ? new Date(record.checkoutTime).toLocaleTimeString() : '—';
+      csv += `"${name}",${checkIn},${checkOut}\n`;
+    });
+
+    res.set('Content-Type', 'text/csv');
+    res.set('Content-Disposition', `attachment; filename="SmartScan-Attendance-${today}.csv"`);
+    res.send(csv);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
